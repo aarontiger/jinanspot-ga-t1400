@@ -1,0 +1,49 @@
+server:
+  port: 9130
+notification:
+  scheduler: false
+keepalive:
+  scheduler: true
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://root:root@127.0.0.1:27017/ams
+
+#  mqtt:
+#    url: tcp://13.75.101.250:1883
+#    username: admin
+#    password: public
+#    connectionTimeout: 30
+#    keepAliveInterval: 60
+#    completionTimeout: 30000
+#    defaultQos: 0
+#    pubClientId: ${random.value}  # 主题发送客户端ID
+#    subClientId: ${random.value}  # 订阅消息客户端ID
+#    defaultTopic: default_topic   # 默认发送主题
+#    subTopics: face_13030421191190201061
+#    cleanSession: true
+#    async: true
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+#    password: 123456
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1
+        max-idle: 8
+        min-idle: 0
+oss:
+  minio:
+    endpoint: http://13.75.101.250:9000/
+    access-key: minioadmin
+    secret-key: minioadmin
+    bucket-name: helmet
+logging:
+  config: classpath:logback_bingocli.xml
+  level:
+    root: info
+    #org.apache.kafka: debug
+    #org.springframework.web: trace

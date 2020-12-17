@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+           attributeFormDefault="unqualified" elementFormDefault="qualified">
+<complexType name="Subscribe">
+    <sequence>
+        <element name="SubscribeID" type="BusinessObjectIdType"/>
+        <element name="Title" type="string"/>
+        <element name=" SubscribeDetail" type=" SubscribeDetailType"/>
+        <element name=" ResourceURI" type=" string"/>
+        <element name="ApplicantName" type="NameType"/>
+        <element name="ApplicantOrg" type="OrgType"/>
+        <element name="BeginTime" type="dateTime"/>
+        <element name="EndTime" type="dateTime"/>
+        <element name="ReceiveAddr" type="string"/>
+        <element name="OperateType" type="int" use="required"/>
+        <element name="SubscribeStatus" type="int"/>
+        <element name="Reason" type="string"/>
+        <element name="SubscribeCancelOrg" type="OrgType"/>
+        <element name="SubscribeCancelPerson" type="string"/>
+        <element name="CancelTime" type="dateTime"/>
+        <element name="CancelReason" type="string"/>
+    </sequence>
+</complexType>
+</schema>

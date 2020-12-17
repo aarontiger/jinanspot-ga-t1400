@@ -1,0 +1,21 @@
+<complexType name="SubscribeNotification">
+  <sequence>
+    <element name="NotificationID" type="BusinessObjectIdType" use="required"></element>
+    <element name="SubscribeID" type="BusinessObjectIdType" use="required"></element>
+    <element name="Title" type="string" use="required"></element>
+    <element name="TriggerTime" type="dateTime" use="required"></element>
+    <element name="InfoIDs" type="string" use="required"></element>
+    <element name="CaseObjectList" type="CaseList"></element>
+    <element name="TollgateObjectList" type="TollgateList"></element>
+    <element name="LaneObjectList" type="LaneList"></element>
+    <element name="DeviceList" type="APEList"></element>
+    <element name="DeviceStatusList" type="APEStatusList"></element>
+    <element name="APSObjectList" type="APSList"></element>
+    <element name="APSStatusObjectList" type="APSStatusList"></element>
+    <element name="PersonObjectList" type="PersonList"></element>
+    <element name="MotorVehicleObjectList" type="MotorVehicleList"></element>
+    <element name="NonMotorVehicleObjectList" type="NonMotorVehicleList"></element>
+    <element name="ThingObjectList" type="ThingList"></element>
+    <element name="SceneObjectList" type="SceneList"></element>
+  </sequence>
+</complexType>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+           attributeFormDefault="unqualified" elementFormDefault="qualified">
+<complexType name="SubscribeAbc">
+    <sequence>
+        <element name="OperateType" type="int" />
+        <element name="CancelReason" type="string"/>
+    </sequence>
+</complexType>
+</schema>

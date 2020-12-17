@@ -1,0 +1,69 @@
+server:
+  port: 9110
+
+# 上传服务器
+push-server:
+  ip: 13.65.33.4
+  port: 39101
+  username: admin
+  password: 12345678
+# 下拉服务器
+pull-server:
+  ip: 13.65.33.11
+  port: 8314
+  username: zntk
+  password: zntk12345
+
+spring:
+  datasource:
+    druid:
+      mysql:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/gat1400?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&autoReconnect=true
+        username: root
+        password: root
+#      oracle:
+#        driver-class-name: oracle.jdbc.driver.OracleDriver
+#        url: jdbc:oracle:thin:@13.75.103.4:15211:orcl
+#        username: zhinengtoukui
+#        password: zhinengtoukui
+
+  mqtt:
+    url: tcp://13.75.101.250:1883
+    username: admin
+    password: public
+    connectionTimeout: 30
+    keepAliveInterval: 60
+    completionTimeout: 30000
+    defaultQos: 0
+    pubClientId: ${random.value}  # 主题发送客户端ID
+    subClientId: ${random.value}  # 订阅消息客户端ID
+    defaultTopic: default_topic   # 默认发送主题
+    subTopics: face_13030421191190201061
+    cleanSession: true
+    async: true
+  redis:
+    database: 0
+    host: localhost
+    port: 6379
+    #password: 123456
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1
+        max-idle: 8
+        min-idle: 0
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    # 这个配置会将执行的sql打印出来，在开发或测试的时候可以用
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+oss:
+  minio:
+    endpoint: http://13.75.101.250:9000/
+    access-key: minioadmin
+    secret-key: minioadmin
+    bucket-name: helmet
+
