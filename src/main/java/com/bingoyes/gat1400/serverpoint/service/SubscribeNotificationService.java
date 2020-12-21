@@ -195,33 +195,33 @@ public class SubscribeNotificationService {
 
             String deviceId = motorVehicle.getDeviceID();
             TollgateObjectWrapper.Tollgate tollgate = simulatorDataUtil.getTollgate(motorVehicle.getTollgateID());
-            String efsDomainGroupCode=null;
-            if(tollgate!=null)  efsDomainGroupCode=tollgate.getDomainGroupCode();
 
-
-
-            String deviceName ="";
+            String efsDomainGroupCode=null; //EFS域组编号
             if(tollgate!=null)
-               deviceName = tollgate.getName()+ deviceId; //todo testcode
+                efsDomainGroupCode=tollgate.getDomainGroupCode();
+
+            String deviceName;
+            if(tollgate!=null)
+               deviceName = tollgate.getName()+ deviceId; //设备名称：卡口名称+deviceId
             else
                deviceName = "摄像头"+ deviceId;
-            //String ip = device.getIpAddr();
-            String ip ="127.127.127.127";  //todo 吉安  尊没有此数据项
+
+            String ip ="100.100.100.100";  //华尊没有此数据项  非必填项1）
 
             String directionId = simulatorDataUtil.transderDirectionId(motorVehicle.getDirection());
             String plateColor = simulatorDataUtil.getColorValue(motorVehicle.getPlateColor());
             String vehicleColor = simulatorDataUtil.getColorValue(motorVehicle.getVehicleColor());
             //String point = "X" + motorVehicle.getLeftTopX() + "Y" + motorVehicle.getLeftTopY() + "W" + (motorVehicle.getRightBtmX() - motorVehicle.getLeftTopX()) + "H" + (motorVehicle.getRightBtmY() - motorVehicle.getLeftTopY());
-            //todo 吉安  尊没有此数据项
-            String point = "X" + 100 + "Y" + 100 + "W" + 100 + "H" + 100;
-            //车道号取2位字符串
-            String laneNo = int2Str(motorVehicle.getLaneNo(),2);
 
-            String speed = "000";//todo 吉安 华尊没有此数据项
+            String point = "X" + 0 + "Y" + 0 + "W" + 100 + "H" + 100;  //华尊没有此数据项 非必填项2）
+
+            String laneNo = int2Str(motorVehicle.getLaneNo(),2); //车道号取2位字符串
+
+            String speed = "000"; //华尊没有此数据项 非必填项 3）
+
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 
             String vehicleTypeValue = simulatorDataUtil.getVehicleTypeValue(String.valueOf(motorVehicle.getVehicleClass()));
-            if(vehicleTypeValue ==null ) vehicleTypeValue ="notfound";
 
             String userDefineField = "106.000000,24.000000#1";
             EfsDomainGroup domainGroup = notificationDao.getEfsDomainGroup(efsDomainGroupCode);
@@ -243,7 +243,7 @@ public class SubscribeNotificationService {
     }
 
     private String getImageDirectory() throws ServiceException{
-        //String imageDir = IMAGE_ROOT_DIR;
+
         String imageDir = imageBaseDir;
         File fileDir = new File(imageDir);
         if(!fileDir.exists()) {
