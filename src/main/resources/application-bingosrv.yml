@@ -3,11 +3,12 @@ server:
 notification:
   scheduler: false
 keepalive:
-  scheduler: false
+  runner: true
 spring:
   data:
     mongodb:
-      uri: mongodb://haoshuhu:haoshuhu@36.122.9.99:27017/gat1400
+      #uri: mongodb://haoshuhu:haoshuhu@36.122.9.99:27017/gat1400
+      uri: mongodb://root:root@127.0.0.1:27017/gat1400
 
 #  mqtt:
 #    url: tcp://13.75.101.250:1883

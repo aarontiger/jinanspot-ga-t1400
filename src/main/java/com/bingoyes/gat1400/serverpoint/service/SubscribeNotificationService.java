@@ -1,11 +1,11 @@
 package com.bingoyes.gat1400.serverpoint.service;
 
-import afu.org.checkerframework.checker.igj.qual.I;
 import cn.hutool.json.JSONUtil;
 import com.bingoyes.gat1400.apicaller.bean.MotorVehicleObjectWrapper;
 import com.bingoyes.gat1400.common.exception.ServiceException;
 import com.bingoyes.gat1400.serverpoint.dao.SubscribeNotificationDao;
 import com.bingoyes.gat1400.serverpoint.entiy.DeviceObjectWrapper;
+import com.bingoyes.gat1400.serverpoint.entiy.EfsDomainGroup;
 import com.bingoyes.gat1400.serverpoint.entiy.SubscribeNotificationRequestObject;
 import com.bingoyes.gat1400.serverpoint.entiy.TollgateObjectWrapper;
 import com.bingoyes.gat1400.hzsimulator.SimulatorDataUtil;
@@ -30,8 +30,6 @@ public class SubscribeNotificationService {
 
     private static Logger logger = LoggerFactory.getLogger(SubscribeNotificationService.class);
 
-    private final static String  IMAGE_ROOT_DIR = "E:\\gat-image\\";
-
     @Value("${imageBaseDir}")
     private String imageBaseDir;
 
@@ -45,36 +43,42 @@ public class SubscribeNotificationService {
      * 处理订阅通知
      * @param notificaitonListObject
      */
-    public void processNotificationList(SubscribeNotificationRequestObject.SubscribeNotificationListObject notificaitonListObject){
+    public void processNotificationList(String requestUrl,String requestDeviceId,SubscribeNotificationRequestObject.SubscribeNotificationListObject notificaitonListObject){
 
         logger.info("begin to process notifications");
 
-        //todo
-        //导入设备信息
+
         //todo 吉安
-        simulatorDataUtil.importDeviceIntoMongo();
+        //simulatorDataUtil.importDeviceIntoMongo();
 
         //通知json保存到mongo
         String jsonStr = JSONUtil.toJsonStr(notificaitonListObject);
 
-        notificationDao.insertNotificationHistory(jsonStr); //todo 吉安
 
         List<SubscribeNotificationRequestObject.SubscribeNotification> notificationList = notificaitonListObject.getSubscribeNotificationObject();
 
-        for(SubscribeNotificationRequestObject.SubscribeNotification notification:notificationList){
+        for (SubscribeNotificationRequestObject.SubscribeNotification notification : notificationList) {
             //处理卡口数据
-            TollgateObjectWrapper.TollgateListObject tollgateListObject= notification.getTollgateListObject();
-            if(tollgateListObject!=null) processTollgates(tollgateListObject.getTollgateObject());
+            TollgateObjectWrapper.TollgateListObject tollgateListObject = notification.getTollgateListObject();
+            if (tollgateListObject != null) processTollgates(tollgateListObject.getTollgateObject());
 
             //处理设备数据
-            DeviceObjectWrapper.ApeListObject apeListObject= notification.getApeListObject();
-            if(apeListObject!=null) processDevices(apeListObject.getApeObject());
+            DeviceObjectWrapper.ApeListObject apeListObject = notification.getApeListObject();
+            if (apeListObject != null) processDevices(apeListObject.getApeObject());
 
             //处理机动车数据
-           MotorVehicleObjectWrapper.MotorVehicleListObject motorVehicleListObject = notification.getMotorVehicleObjectList();
-            if(motorVehicleListObject!=null) processMotorVehicles(motorVehicleListObject.getMotorVehicleObject());
+            MotorVehicleObjectWrapper.MotorVehicleListObject motorVehicleListObject = notification.getMotorVehicleObjectList();
+            if (motorVehicleListObject != null)
+                processMotorVehicles(motorVehicleListObject.getMotorVehicleObject());
         }
+
         logger.info("end to process notifications");
+    }
+
+    public void insertNotificationHistory(String requestUrl,String requestDeviceId,String bodyJson,boolean processSucceed){
+        logger.info("begin insert notification into mongo");
+        notificationDao.insertNotificationHistory(requestUrl,requestDeviceId,bodyJson,processSucceed);
+        logger.info("end insert notification into mongo");
     }
 
     /**
@@ -86,13 +90,10 @@ public class SubscribeNotificationService {
         logger.info("begin to process vehicles");
         //处理机动车数据
         for(MotorVehicleObjectWrapper.MotorVehicle motorVehicle:vehicleListList){
-            //保存机动车数据
-            //todo testcode
-            notificationDao.saveNotificationMotorVehicle(motorVehicle);
-            //logger.info("success save vehicle in mongo");
+
             //保存机动车图片
             this.saveVehicleImage(motorVehicle); //tod 吉安
-            logger.info("success save vehicle on  disk");
+            logger.info("save vehicle on  disk success");
             logger.info("platNo："+motorVehicle.getPlateNo());
         }
         logger.info("end to process vehicles");
@@ -144,7 +145,7 @@ public class SubscribeNotificationService {
         if(!file.exists()) {
             try {
                 file.createNewFile();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 throw new ServiceException("创建图片文件失败");
             }
@@ -167,9 +168,10 @@ public class SubscribeNotificationService {
 
                 outputStream.write(buffer, 0, bytesRead);
             }
-            logger.info("success copy remote image file");
+            logger.info("copy remote image file success");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("copy remote image file failure");
+            throw new ServiceException("copy remote image file failure");
         }finally {
             try {
                 if (inputStream != null) inputStream.close();
@@ -192,26 +194,43 @@ public class SubscribeNotificationService {
             fileExt = imageUrl.substring(index);*/
 
             String deviceId = motorVehicle.getDeviceID();
-            DeviceObjectWrapper.Ape device = notificationDao.getDevice(deviceId);
-            //String deviceName = device.getName();
-            String deviceName = "摄像头" + deviceId; //todo testcode
-            String ip = device.getIpAddr();
-            String tollgateId = simulatorDataUtil.transferTollgateId(motorVehicle.getTollgateId());
+            TollgateObjectWrapper.Tollgate tollgate = simulatorDataUtil.getTollgate(motorVehicle.getTollgateID());
+            String efsDomainGroupCode=null;
+            if(tollgate!=null)  efsDomainGroupCode=tollgate.getDomainGroupCode();
+
+
+
+            String deviceName ="";
+            if(tollgate!=null)
+               deviceName = tollgate.getName()+ deviceId; //todo testcode
+            else
+               deviceName = "摄像头"+ deviceId;
+            //String ip = device.getIpAddr();
+            String ip ="127.127.127.127";  //todo 吉安  尊没有此数据项
+
             String directionId = simulatorDataUtil.transderDirectionId(motorVehicle.getDirection());
             String plateColor = simulatorDataUtil.getColorValue(motorVehicle.getPlateColor());
             String vehicleColor = simulatorDataUtil.getColorValue(motorVehicle.getVehicleColor());
-            String point = "X" + motorVehicle.getLeftTopX() + "Y" + motorVehicle.getLeftTopY() + "W" + (motorVehicle.getRightBtmX() - motorVehicle.getLeftTopX()) + "H" + (motorVehicle.getRightBtmY() - motorVehicle.getLeftTopY());
-            //String laneNo = "02"; //todo testcode
-            String laneNo = genStr(motorVehicle.getLaneNo(),2);
-            String speed = "000";//todo testcode
+            //String point = "X" + motorVehicle.getLeftTopX() + "Y" + motorVehicle.getLeftTopY() + "W" + (motorVehicle.getRightBtmX() - motorVehicle.getLeftTopX()) + "H" + (motorVehicle.getRightBtmY() - motorVehicle.getLeftTopY());
+            //todo 吉安  尊没有此数据项
+            String point = "X" + 100 + "Y" + 100 + "W" + 100 + "H" + 100;
+            //车道号取2位字符串
+            String laneNo = int2Str(motorVehicle.getLaneNo(),2);
+
+            String speed = "000";//todo 吉安 华尊没有此数据项
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 
-            String vehicleType = simulatorDataUtil.getVehicleTypeValue(String.valueOf(motorVehicle.getVehicleClass()));
+            String vehicleTypeValue = simulatorDataUtil.getVehicleTypeValue(String.valueOf(motorVehicle.getVehicleClass()));
+            if(vehicleTypeValue ==null ) vehicleTypeValue ="notfound";
 
-            String userDefineField = "106.573035,24.343741#1";
-            String imageFileName = deviceName + "_" + deviceId + "_" + ip + "_" + tollgateId + "_" + motorVehicle.getPlateNo() + "_"
+            String userDefineField = "106.000000,24.000000#1";
+            EfsDomainGroup domainGroup = notificationDao.getEfsDomainGroup(efsDomainGroupCode);
+            if(domainGroup!=null)
+                userDefineField = domainGroup.getCenter()+"#1";
+
+            String imageFileName = deviceName + "_" + deviceId + "_" + ip + "_" + efsDomainGroupCode + "_" + motorVehicle.getPlateNo() + "_"
                     + plateColor + "_" + laneNo + "_" + speed + "_" + directionId + "_" + vehicleColor + "_" + point + "_" + motorVehicle.getPassTime()
-                    + "_" + userDefineField + "_" + vehicleType;
+                    + "_" + userDefineField + "_" + vehicleTypeValue;
 
             imageFileName = getImageDirectory() + imageFileName + fileExt;
 
@@ -219,7 +238,7 @@ public class SubscribeNotificationService {
             return imageFileName;
         }catch(Exception e){
             logger.error("generate image filename error");
-            throw e;
+            throw new ServiceException("generate image filename error");
         }
     }
 
@@ -244,6 +263,7 @@ public class SubscribeNotificationService {
      * @return
      */
     public static String checkImageUrl(String url) {
+        logger.info("checking image remote url");
         String result = "";
         BufferedReader in = null;
         try {
@@ -260,14 +280,12 @@ public class SubscribeNotificationService {
             connection.connect();
             // 获取所有响应头字段
             Map<String, List<String>> map = connection.getHeaderFields();
-            // 遍历所有的响应头字段
-            /*for (String key : map.keySet()) {
-                System.out.println(key + "--->" + map.get(key));
-            }*/
+
             int retCode = connection.getResponseCode();
             if(retCode!=200) throw new ServiceException("url访问失败");
         } catch (Exception e) {
-           logger.error("url访问异常" + e);
+           logger.error("url访问异常", e);
+           throw new ServiceException("check image url failure");
         }finally {
             try {
                 if (in != null)  in.close();
@@ -278,7 +296,7 @@ public class SubscribeNotificationService {
         return result;
     }
 
-    public String genStr(int intValue,int length){
+    public String int2Str(int intValue, int length){
         String strValue = Integer.toString(intValue);
         if(length<strValue.length())
             for(int i=0;i<length-strValue.length();i++)

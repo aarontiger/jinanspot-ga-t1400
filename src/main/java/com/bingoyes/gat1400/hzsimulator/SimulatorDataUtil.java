@@ -28,7 +28,7 @@ public class SimulatorDataUtil {
     @Value("${dataFileDir}")
     private String dataFileDir;
 
-    private Map<String,String> tollgateMap = new HashMap<>();
+    private Map<String, TollgateObjectWrapper.Tollgate> tollgateMap = new HashMap<>();
     private Map<String,String> directoinMap = new HashMap<>();
     private Map<String,String> colorMap = new HashMap<>();
     private Map<String,String> vehicleTypeMap = new HashMap<>();
@@ -52,10 +52,50 @@ public class SimulatorDataUtil {
     @PostConstruct
     private void loadMaps(){
 
-        tollgateMap = loadMapFromCsv(TOLLGATE_LIST_FILE_NAME);
+        tollgateMap = loadTollgateFromCsv(TOLLGATE_LIST_FILE_NAME);
         directoinMap = loadMapFromCsv(DIRECTION_ID_MAPPING_FILE_NAME);
         colorMap = loadMapFromCsv(COLOR_LIST_FILE_NAME);
         vehicleTypeMap = loadMapFromCsv(VEHICLE_TYPE_LIST_FILE_NAME);
+
+        logger.info("tollgate mapping list:");
+        for(String key:tollgateMap.keySet()) {
+            logger.info(key+","+tollgateMap.get(key));
+        }
+    }
+
+    private Map<String, TollgateObjectWrapper.Tollgate> loadTollgateFromCsv(String fileName){
+        Map<String, TollgateObjectWrapper.Tollgate> resultMap = new HashMap<>();
+
+        String fullFileName = dataFileDir+fileName;
+
+        BufferedReader br=null;
+        try {
+            File file = new File(fileName);
+            InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(fullFileName), "GBK");
+            br = new BufferedReader(inputStreamReader);
+            String line = "";
+            while ((line = br.readLine()) != null) {
+                String[] fields = line.split(",");
+                TollgateObjectWrapper.Tollgate tollgate = new TollgateObjectWrapper.Tollgate();
+                tollgate.setTollgateID(fields[0]);
+                tollgate.setDomainGroupCode(fields[1]);
+
+                tollgate.setName(fields[2]);
+                resultMap.put(tollgate.getTollgateID(),tollgate);
+
+            }
+        }catch (Exception e) {
+            logger.error("load csv文件失败："+fileName,e);
+        }finally{
+            if(br!=null){
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return resultMap;
     }
 
     private Map<String,String> loadMapFromCsv(String fileName){
@@ -114,7 +154,7 @@ public class SimulatorDataUtil {
 
                 //vehicle.setDeviceID(fields[1]);
                 vehicle.setDeviceID(genDeviceId(8));
-                vehicle.setTollgateId(fields[3]);
+                vehicle.setTollgateID(fields[3]);
                 vehicle.setPlateNo(fields[4]);
                 vehicle.setPlateColor(fields[5]);
                 vehicle.setLaneNo(Integer.parseInt(fields[6]));
@@ -127,7 +167,9 @@ public class SimulatorDataUtil {
                 vehicle.setRightBtmY(Integer.parseInt(fields[13]));
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                vehicle.setPassTime(fields[14]);
+                SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHHmmss");
+
+                vehicle.setPassTime(sdf2.format(sdf.parse(fields[14])));
                 vehicle.setVehicleClass(fields[15]);
                 vehicle.setStorageUrl1(fields[16]);
                 dataList.add(vehicle);
@@ -285,8 +327,15 @@ public class SimulatorDataUtil {
         return rs.toString();
     }
 
+    public TollgateObjectWrapper.Tollgate getTollgate(String tollgateId){
+        TollgateObjectWrapper.Tollgate tollgate= tollgateMap.get(tollgateId);
+        return tollgate;
+    }
+
     public String transferTollgateId(String tollgateId){
-        return tollgateMap.get(tollgateId);
+        TollgateObjectWrapper.Tollgate tollgate= tollgateMap.get(tollgateId);
+        if(tollgate==null) return null;
+        else return tollgate.getDomainGroupCode();
     }
 
     public String transderDirectionId(int directionId){
@@ -301,5 +350,11 @@ public class SimulatorDataUtil {
         return vehicleTypeMap.get(vehicleType);
     }
 
-
+    //取得华尊所有卡口id,逗号分隔
+    public String getAllHuazunTollgageId(){
+        String[] idArray = new String[]{};
+        idArray =tollgateMap.keySet().toArray(idArray);
+        String tollgateIds = String.join(",",idArray);
+        return tollgateIds;
+    }
 }

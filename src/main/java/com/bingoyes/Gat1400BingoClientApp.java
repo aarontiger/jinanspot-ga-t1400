@@ -8,7 +8,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-//@SpringBootApplication
+@SpringBootApplication
 public class Gat1400BingoClientApp implements CommandLineRunner
 {
 
@@ -24,12 +24,19 @@ public class Gat1400BingoClientApp implements CommandLineRunner
     @Override
     public void run(String... args) throws Exception {
 
-        String operatType =args[0];
+        logger.info("bingoyes client starting");
+
         String result = "";
+        String operatType ="";
+
+        if(args.length>0){
+            operatType = args[0];
+        }
+
+        logger.info("operate type:"+operatType);
 
         if("register".equals(operatType)){
             result = hzApiCallingService.register();
-            //result = hzApiCallingService.registerWithRestDigest();
             logger.info("注册成功："+result);
         }else if("unregister".equals(operatType)){
             result = hzApiCallingService.unregister();
@@ -49,6 +56,6 @@ public class Gat1400BingoClientApp implements CommandLineRunner
         }else
             throw new SecurityException("输入的操作类型不正确");
 
-        logger.info("api call result:"+result);
+        //logger.info("api call result:"+result);
     }
 }

@@ -18,13 +18,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
+
 @Controller
 public class SubscribeNotificationController {
     private static Logger log = LoggerFactory.getLogger(SubscribeNotificationController.class);
@@ -33,11 +34,13 @@ public class SubscribeNotificationController {
     private SubscribeNotificationService notificationService;
 
     @RequestMapping(value = "/VIID/SubscribeNotifications", method = RequestMethod.POST)
-    public @ResponseBody String notification(@RequestBody Map<String,Object> requestMap) {
+    public @ResponseBody String notification(@RequestBody Map<String,Object> requestMap, HttpServletRequest request) {
         log.info("SubscribeNotification received");
         String requestJson = JSONUtil.toJsonStr(requestMap);
         log.info("requestJson:"+requestJson);
 
+        String requestUrl = request.getRemoteAddr();
+        String deviceId = request.getHeader("User-Identify");
         SubscribeNotificationRequestObject subscribeNotificationRequestObject = JSONUtil.toBean(requestJson,SubscribeNotificationRequestObject.class);
 
         ResponseStatusListObjectWrapper.ResponseStatusListObject responseStatusListObject = new ResponseStatusListObjectWrapper.ResponseStatusListObject();
@@ -48,18 +51,29 @@ public class SubscribeNotificationController {
         responseStatus.setLocalTime(sdf.format(new Date()));
         responseStatus.setRequestURL("/VIID/SubscribeNotifications");
 
+        boolean processSucceed = true;
         try {
 
-            notificationService.processNotificationList(subscribeNotificationRequestObject.getSubscribeNotificationListObject());
+            notificationService.processNotificationList(requestUrl,deviceId,subscribeNotificationRequestObject.getSubscribeNotificationListObject());
 
             responseStatus.setStatusCode(0);
             responseStatus.setStatusString("发送订阅通知成功");
             log.info("subscribe notification success");
-        } catch (ServiceException e) {
+        }catch (ServiceException e) {
+            responseStatus.setStatusCode(-1);
+            responseStatus.setStatusString(e.getMessage());
+            log.info("subscribe notification failure");
+            processSucceed = false;
+        } catch (Exception e) {
             responseStatus.setStatusCode(-1);
             responseStatus.setStatusString("发送订阅通知失败");
             log.info("subscribe notification failure");
+            processSucceed = false;
         }
+
+        //insert into mongo
+        notificationService.insertNotificationHistory(requestUrl,deviceId,requestJson,processSucceed);
+
         statusList.add(responseStatus);
         responseStatusListObject.setResponseStatusObject(statusList);
         ResponseStatusListObjectWrapper wrapper = new ResponseStatusListObjectWrapper();

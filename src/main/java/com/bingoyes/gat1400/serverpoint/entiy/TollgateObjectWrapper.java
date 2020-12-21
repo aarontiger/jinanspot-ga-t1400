@@ -31,7 +31,7 @@ public class TollgateObjectWrapper {
     }
 
     @Data
-    public class Tollgate {
+    public static class Tollgate {
         private String TollgateID;
         private String Name;
         //经度
@@ -56,6 +56,7 @@ public class TollgateObjectWrapper {
         private String OrgCode;
         //卡口启用时间
         private Date AtiveTime;
+        private String domainGroupCode;
 
         public String getTollgateID() {
             return TollgateID;
@@ -151,6 +152,14 @@ public class TollgateObjectWrapper {
 
         public void setAtiveTime(Date ativeTime) {
             AtiveTime = ativeTime;
+        }
+
+        public void setDomainGroupCode(String domainGroupCode) {
+            this.domainGroupCode = domainGroupCode;
+        }
+
+        public String getDomainGroupCode() {
+            return domainGroupCode;
         }
     }
 }

@@ -27,7 +27,9 @@ public class NofificationSimulatorService {
 
 
     String serverUrl ="http://127.0.0.1:9120";
-    String deviceId = "abcd";
+
+    @Value("${deviceId}")
+    String deviceId;
 
     @Resource
     RestTemplate restTemplate;
@@ -52,13 +54,15 @@ public class NofificationSimulatorService {
         headers.set("User-Identify", deviceId);
         //headers.setConnection("keepalive");
 
+        String requestJson = JSONUtil.toJsonStr(subscribeNotificationRequestObject);
         // 请求参数设置
-        HttpEntity<SubscribeNotificationRequestObject> httpEntity = new HttpEntity<>(subscribeNotificationRequestObject, headers);
+        HttpEntity<String> httpEntity = new HttpEntity<>(requestJson, headers);
 
-        ResponseEntity<ResponseStatusListObjectWrapper> responseEntity = restTemplate.exchange(url, HttpMethod.POST, httpEntity, ResponseStatusListObjectWrapper.class);
+        ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.POST, httpEntity, String.class);
         if (org.apache.http.HttpStatus.SC_OK == responseEntity.getStatusCode().value()) {
 
-            String resultJson = JSONUtil.toJsonStr(responseEntity.getBody());
+            //String resultJson = JSONUtil.toJsonStr(responseEntity.getBody());
+            String resultJson = responseEntity.getBody();
             logger.info("send notification success");
             logger.info("notification result json:"+ resultJson);
 

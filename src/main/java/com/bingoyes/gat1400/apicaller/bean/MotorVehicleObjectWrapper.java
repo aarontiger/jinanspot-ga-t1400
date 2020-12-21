@@ -3,7 +3,6 @@ package com.bingoyes.gat1400.apicaller.bean;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Date;
 import java.util.List;
 
 @Data
@@ -64,7 +63,7 @@ public class MotorVehicleObjectWrapper {
         private String VehicleClass;
 
         //以下属性待筛选
-        private String TollgateId;
+        private String TollgateID;
         private SubImageList SubImageList;
         private String MotorVehicleID;
         private String StorageUrl1;
@@ -153,12 +152,12 @@ public class MotorVehicleObjectWrapper {
             VehicleClass = vehicleClass;
         }
 
-        public String getTollgateId() {
-            return TollgateId;
+        public String getTollgateID() {
+            return TollgateID;
         }
 
-        public void setTollgateId(String tollgateId) {
-            TollgateId = tollgateId;
+        public void setTollgateID(String tollgateID) {
+            TollgateID = tollgateID;
         }
 
         public MotorVehicleObjectWrapper.SubImageList getSubImageList() {

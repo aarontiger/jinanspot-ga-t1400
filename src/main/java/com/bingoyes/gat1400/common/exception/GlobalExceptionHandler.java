@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 
 @RestControllerAdvice
-@Slf4j
 public class GlobalExceptionHandler {
     private static Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 

@@ -43,8 +43,7 @@ public class MongoConfig {
         return new SimpleMongoDbFactory(new MongoClientURI(mongodbUri));
     }
 
-    @Bean
-    @Primary
+    @Bean(name="mongoTemplate")
     public MongoTemplate mongoTemplate() throws UnknownHostException {
         return new MongoTemplate(this.mongoDbFactory1(), mappingMongoConverter());
     }

@@ -12,6 +12,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+@Deprecated
 @EnableScheduling
 @Component
 @ConditionalOnProperty(value="keepalive.scheduler")
@@ -21,11 +22,12 @@ public class KeepaliveScheduler {
     @Autowired
     HzApiCallingService hzApiCallingService;
 
-    @Scheduled(fixedRate = 60000)
+    //@Scheduled(fixedRate = 60000)
+    @Deprecated
     public void schedule(){
         try {
-            hzApiCallingService.keepalive();
-            logger.info("send keepalive success");
+            String result = hzApiCallingService.keepalive();
+            logger.info("send keepalive success:"+result);
 
         } catch (ServiceException e) {
             logger.error("send keepalive  error");

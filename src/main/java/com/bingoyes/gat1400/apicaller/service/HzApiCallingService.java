@@ -5,6 +5,7 @@ import cn.hutool.json.JSONUtil;
 import com.bingoyes.gat1400.apicaller.bean.*;
 import com.bingoyes.gat1400.apicaller.dao.SubscribeDao;
 import com.bingoyes.gat1400.common.exception.ServiceException;
+import com.bingoyes.gat1400.hzsimulator.SimulatorDataUtil;
 import com.bingoyes.gat1400.util.IdUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
@@ -34,11 +35,9 @@ import java.util.*;
 @Service
 @PropertySource(value = {"file:/opt/gat1400/conf/gat1400.yml"})
 //@ConfigurationProperties(prefix = "remotegat")
-@Slf4j
+//@Slf4j
 public class HzApiCallingService {
     private static Logger log = LoggerFactory.getLogger(HzApiCallingService.class);
-
-    private final static String  imageRootDir = "";
 
     @Resource
     private RestTemplate restTemplate;
@@ -46,8 +45,11 @@ public class HzApiCallingService {
     @Resource
     RestTemplate restTemplateDigest;
 
-    //@Autowired
+    @Autowired
     private SubscribeDao subscribeDao;
+
+    @Autowired
+    private SimulatorDataUtil simulatorDataUtil;
 
     @Value("${hz-hostname}")
     private String hostname;
@@ -86,16 +88,15 @@ public class HzApiCallingService {
     public String doSubscribeWithAuth(String detailType){
         try {
 
-            String url ="http://"+hostname+":"+port+"/VIID/Subscribes";
+            String serverUrl ="http://"+hostname+":"+port+"/VIID/Subscribes";
 
-//            headers.set("User-Identify", deviceId);  //todo
             SubscribeListRequestObject.SubscribeListObject subscribeListObject = new SubscribeListRequestObject.SubscribeListObject();
             List<SubscribeListRequestObject.Subscribe> subscribeList = new ArrayList<>();
             SubscribeListRequestObject.Subscribe subscribe = new SubscribeListRequestObject.Subscribe();
 
-            //String subscribeId = IdUtils.generateId(20);//todo testcode
+
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-            String subscribeId = "36000000000003"+sdf.format(new Date())+ "99011";//todo testcode
+            String subscribeId = "36000000000003"+sdf.format(new Date())+ "99011";//todo 吉安
 
             Calendar calendar = Calendar.getInstance();
             String beginTime = sdf.format(calendar.getTime());
@@ -105,7 +106,10 @@ public class HzApiCallingService {
             subscribe.setSubscribeID(subscribeId);
             subscribe.setTitle("信息订阅");
             subscribe.setSubscribeDetail(detailType);
-            subscribe.setResourceURI(resourceUri);  //todo 需要和华尊确定
+            //subscribe.setResourceURI(resourceUri);  //todo 吉安
+
+            //取得tollgate_list.csv中的所有华尊卡口
+            subscribe.setResourceURI(simulatorDataUtil.getAllHuazunTollgageId());
             subscribe.setApplicantName("bingoyes"); //订阅人
             subscribe.setApplicantOrg("zhizhu"); //订阅单位
             subscribe.setBeginTime(beginTime);
@@ -122,12 +126,12 @@ public class HzApiCallingService {
 
             SubscribeListRequestObject subscribeListRequestObject = new SubscribeListRequestObject();
             subscribeListRequestObject.setSubscribeListObject(subscribeListObject);
-            Object result = posWithRestTemplateWithAuth(url,subscribeListRequestObject,ResponseStatusListObjectWrapper.class);
+            Object result = posWithRestTemplateWithAuth(serverUrl,subscribeListRequestObject,ResponseStatusListObjectWrapper.class);
             String responseJson = JSONUtil.toJsonStr(result);
             log.info(responseJson);
 
             //mongo存储订阅信息
-            //subscribeDao.insertSubscribeHistory(JSONUtil.toJsonStr(subscribeListObject));
+            subscribeDao.insertSubscribeHistory(serverUrl,deviceId,JSONUtil.toJsonStr(subscribeListObject));
 
             return  responseJson;
 
@@ -154,6 +158,7 @@ public class HzApiCallingService {
          headers.set("Accept","*/*");
 //        headers.set("Accept-Encoding","gzip");
 //        headers.set("Content-Encoding","UTF-8");
+        //todo 吉安
         headers.set("Cookie","JSESSIONID=2DBC9C95A77BBA4229D5BE31E9051A5E");
         headers.set("Postman-Token","2f4d793f-66b8-4a68-9179-650037c3fdfd");
 
@@ -169,9 +174,11 @@ public class HzApiCallingService {
             log.info("restTemplate called success");
             log.info("url:"+url);
             log.info("deviceId:"+deviceId);
-            log.info("response body:"+responseEntity.getBody());
             log.info("request body:"+JSONUtil.toJsonStr(requestObject));
-            log.info("headers:");
+
+            log.info("response body:"+responseEntity.getBody());
+            log.info("response headers:");
+
             for (Map.Entry<String, List<String>> entry : responseEntity.getHeaders().entrySet()) {
                 System.out.println("Key : " + entry.getKey() +
                         " ,Value : " + entry.getValue());
@@ -241,10 +248,6 @@ public class HzApiCallingService {
         log.info(responseJson);
         return  responseJson;
     }
-
-    //调用获取设备数据接口
-
-    //调用获取卡口数据接口
 
     /**
      * 不带安全发送订阅请求
