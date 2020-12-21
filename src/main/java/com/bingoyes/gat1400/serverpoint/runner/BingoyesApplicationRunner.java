@@ -67,8 +67,9 @@ public class BingoyesApplicationRunner implements ApplicationRunner, Ordered {
         }
     }
     public void keepalive(){
-        boolean keepaliveResult = true;
-        while(keepaliveResult) {
+
+        while(true) {
+
             logger.info("keep alive thread to huazun staring");
             String result = hzApiCallingService.keepalive();
             logger.info("keepalive result：");

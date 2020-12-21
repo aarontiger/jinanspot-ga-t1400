@@ -21,26 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@Slf4j
 public class SystemController {
     private static Logger log = LoggerFactory.getLogger(SystemController.class);
-    @RequestMapping(value = "/hello3", method = RequestMethod.GET)
-    public Result hello3(){
-        ResponseStatusListObjectWrapper.ResponseStatus responseStatus = new ResponseStatusListObjectWrapper.ResponseStatus();
-        return Result.success(responseStatus);
-    }
-
-    @RequestMapping(value = "/hello2", method = RequestMethod.GET)
-    public Result hello2(){
-        ResponseStatusListObjectWrapper.ResponseStatus responseStatus = new ResponseStatusListObjectWrapper.ResponseStatus();
-        return Result.success(responseStatus);
-    }
-
-    @RequestMapping(value = "/hello", method = RequestMethod.GET)
-    public Result hello(){
-        ResponseStatusListObjectWrapper.ResponseStatus responseStatus = new ResponseStatusListObjectWrapper.ResponseStatus();
-        return Result.success(responseStatus);
-    }
 
     @RequestMapping(value = "/VIID/System/Register", method = RequestMethod.POST)
     public String register(@RequestBody Map<String,Object> requestMap, HttpServletResponse response){
@@ -59,6 +41,7 @@ public class SystemController {
 
         try {
             responseStatusObject.setStatusCode(0);
+            //responseStatusObject.setStatusCode(-1);
             responseStatusObject.setStatusString("注册成功");
 
             log.info("register request success");
@@ -74,7 +57,7 @@ public class SystemController {
     }
 
     @RequestMapping(value = "/VIID/System/Keepalive", method = RequestMethod.POST)
-    public String Keepalive(@RequestBody Map<String,Object> requestMap){
+    public String keepalive(@RequestBody Map<String,Object> requestMap){
         log.info("Keepalive received");
 
         String requestJson = JSONUtil.toJsonStr(requestMap);
@@ -90,6 +73,7 @@ public class SystemController {
         try {
 
            responseStatusObject.setStatusCode(0);
+           //responseStatusObject.setStatusCode(-1);
            responseStatusObject.setStatusString("保活成功");
            log.info("keepalive request success");
 
