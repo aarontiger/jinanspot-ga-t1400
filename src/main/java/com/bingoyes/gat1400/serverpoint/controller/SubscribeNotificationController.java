@@ -41,6 +41,8 @@ public class SubscribeNotificationController {
 
         String requestUrl = request.getRemoteAddr();
         String deviceId = request.getHeader("User-Identify");
+        log.info("requestUrl:"+requestUrl);
+        log.info("request deviceId(User-Identify):"+deviceId);
         SubscribeNotificationRequestObject subscribeNotificationRequestObject = JSONUtil.toBean(requestJson,SubscribeNotificationRequestObject.class);
 
         ResponseStatusListObjectWrapper.ResponseStatusListObject responseStatusListObject = new ResponseStatusListObjectWrapper.ResponseStatusListObject();

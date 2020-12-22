@@ -304,4 +304,13 @@ public class SubscribeNotificationService {
         return strValue;
     }
 
+    public void clearHistoryData(int days){
+        logger.info("clear history data start");
+        logger.info("days:"+days);
+        notificationDao.clearNotificationData(days);
+        notificationDao.clearSubscribeData(days);
+
+        logger.info("clear history data end");
+    }
+
 }

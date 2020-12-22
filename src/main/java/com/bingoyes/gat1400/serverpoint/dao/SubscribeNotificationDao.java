@@ -19,6 +19,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -101,5 +102,27 @@ public class SubscribeNotificationDao {
     public EfsDomainGroup getEfsDomainGroup(String adCode){
         Query query =new Query(Criteria.where("adCode").is(adCode));
         return efsMongoTemplate.findOne(query,EfsDomainGroup.class,"domain_group");
+    }
+
+    public void clearSubscribeData(int days){
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_MONTH ,-days);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
+        String dateStr = sdf.format(calendar.getTime());
+        Query query =new Query(Criteria.where("operateTime").lte(dateStr));
+
+        mongoTemplate.remove(query,"subscribe_history");
+    }
+
+    public void clearNotificationData(int days){
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_MONTH ,-days);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
+        String dateStr = sdf.format(calendar.getTime());
+        Query query =new Query(Criteria.where("operateTime").lte(dateStr));
+
+        mongoTemplate.remove(query,"notification_history");
     }
 }
