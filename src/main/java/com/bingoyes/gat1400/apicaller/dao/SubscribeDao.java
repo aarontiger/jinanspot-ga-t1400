@@ -27,7 +27,7 @@ public class SubscribeDao {
     @Qualifier("mongoTemplate")
     private MongoTemplate mongoTemplate;
 
-    public void insertSubscribeHistory(String serverUrl,String deviceId,String json) {
+    public void insertSubscribeHistory(String serverUrl,String deviceId,String json,Date operateDate) {
 
         try {
             Map contentMap = (Map) JSON.parse(json);
@@ -36,7 +36,7 @@ public class SubscribeDao {
             subscribeMap.put("deviceId",deviceId);
             subscribeMap.put("content",contentMap);
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-            subscribeMap.put("operateTime",sdf.format(new Date()));
+            subscribeMap.put("operateTime",sdf.format(operateDate));
 
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonStr = objectMapper.writeValueAsString(subscribeMap);

@@ -8,6 +8,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.util.List;
+
 @SpringBootApplication
 public class Gat1400BingoClientApp implements CommandLineRunner
 {
@@ -44,15 +46,13 @@ public class Gat1400BingoClientApp implements CommandLineRunner
         }else if("keepalive".equals(operatType)){
             result = hzApiCallingService.keepalive();
             logger.info("保活成功："+result);
-        }else if("sub-t".equals(operatType)){
-            result = hzApiCallingService.subscribeTollgate();
-            logger.info("订阅卡口成功："+result);
-        }else if("sub-a".equals(operatType)){
-            result = hzApiCallingService.subscribeDevice();
-            logger.info("订阅设备成功："+result);
         }else if("sub-v".equals(operatType)){
-            result = hzApiCallingService.subscribeMotorVehicle();
-            logger.info("订阅机动车成功："+result);
+            List<String> resultList = hzApiCallingService.subscribeMotorVehicle();
+            logger.info("订阅机动车成功：");
+            for(String item:resultList) {
+                logger.info("result:" + item);
+            }
+
         }else
             throw new SecurityException("输入的操作类型不正确");
 

@@ -75,9 +75,47 @@ public class HzApiCallingService {
     @Value("${notificationReceiveAddr}")
     private String notificationReceiveAddr;
 
-    public String subscribeMotorVehicle()
+    public List<String> subscribeMotorVehicle()
     {
        return doSubscribeWithAuth("13"); //13为机动车信息订阅
+    }
+
+    public List<String> doSubscribeWithAuth(String detailType){
+        List<String> resultList = new ArrayList();
+        Set<String> keySet = simulatorDataUtil.getAllHuazunTollgageIdSet();
+        int count =0;
+        String[] idList = new String[]{};
+        idList = keySet.toArray(idList);
+
+        Date operatDate = new Date();
+        int j=0;
+        for (;j<idList.length/10;j++) {
+            List<String> idArrayList = new ArrayList();
+            for(int i=0;i<10;i++) {
+                idArrayList.add(idList[j * 10 + i]);
+            }
+            String [] idPartList = new String[]{};
+            idPartList = idArrayList.toArray(idPartList);
+            String tollgateIds = String.join(",",idPartList);
+
+            String result = doSubscribeWithAuth(detailType,tollgateIds,String.valueOf(j+1),operatDate);
+            resultList.add(result);
+        }
+
+        ///
+        List<String> idArrayList = new ArrayList();
+        for(int i=0;i<idList.length%10;i++) {
+            idArrayList.add(idList[j * 10 + i]);
+        }
+        String [] idPartList = new String[]{};
+        idPartList = idArrayList.toArray(idPartList);
+        String tollgateIds = String.join(",",idPartList);
+
+        String result = doSubscribeWithAuth(detailType,tollgateIds,String.valueOf(j+1),operatDate);
+        resultList.add(result);
+
+
+        return  resultList;
     }
 
     /**
@@ -85,7 +123,7 @@ public class HzApiCallingService {
      * @param detailType
      * @return
      */
-    public String doSubscribeWithAuth(String detailType){
+    public String doSubscribeWithAuth(String detailType,String resourceUri,String batch,Date subDate){
         try {
 
             String serverUrl ="http://"+hostname+":"+port+"/VIID/Subscribes";
@@ -96,9 +134,10 @@ public class HzApiCallingService {
 
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-            String subscribeId = "36000000000003"+sdf.format(new Date())+ "99011";//todo 吉安
+            String subscribeId = "36000000000003"+sdf.format(subDate)+ "9900"+batch;//todo 吉安
 
             Calendar calendar = Calendar.getInstance();
+            calendar.setTime(subDate);
             String beginTime = sdf.format(calendar.getTime());
             calendar.add(Calendar.YEAR,2);
             String endTime = sdf.format(calendar.getTime());
@@ -109,7 +148,8 @@ public class HzApiCallingService {
             //subscribe.setResourceURI(resourceUri);  //todo 吉安
 
             //取得tollgate_list.csv中的所有华尊卡口
-            subscribe.setResourceURI(simulatorDataUtil.getAllHuazunTollgageId());
+            //subscribe.setResourceURI(simulatorDataUtil.getAllHuazunTollgageId());
+            subscribe.setResourceURI(resourceUri);  //每10个id发一个请求，请参数传入
             subscribe.setApplicantName("bingoyes"); //订阅人
             subscribe.setApplicantOrg("zhizhu"); //订阅单位
             subscribe.setBeginTime(beginTime);
@@ -131,7 +171,7 @@ public class HzApiCallingService {
             log.info(responseJson);
 
             //mongo存储订阅信息
-            subscribeDao.insertSubscribeHistory(serverUrl,deviceId,JSONUtil.toJsonStr(subscribeListObject));
+            subscribeDao.insertSubscribeHistory(serverUrl,deviceId,JSONUtil.toJsonStr(subscribeListObject),subDate);
 
             return  responseJson;
 
@@ -193,11 +233,11 @@ public class HzApiCallingService {
         }
     }
 
-    public String subscribeDevice(){
+    public List<String> subscribeDevice(){
         return doSubscribeWithAuth("3");//3为采集设备订阅
     }
 
-    public String subscribeTollgate()
+    public List<String> subscribeTollgate()
     {
        return doSubscribeWithAuth("7"); //7为卡口订阅
     }

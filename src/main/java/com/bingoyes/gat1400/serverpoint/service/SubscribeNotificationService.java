@@ -229,7 +229,7 @@ public class SubscribeNotificationService {
                 userDefineField = domainGroup.getCenter()+"#1";
 
             String imageFileName = deviceName + "_" + deviceId + "_" + ip + "_" + efsDomainGroupCode + "_" + motorVehicle.getPlateNo() + "_"
-                    + plateColor + "_" + laneNo + "_" + speed + "_" + directionId + "_" + vehicleColor + "_" + point + "_" + motorVehicle.getPassTime()
+                    + plateColor + "_" + laneNo + "_" + speed + "_" + directionId + "_" + vehicleColor + "_" + point + "_" + motorVehicle.getPassTime()+"000"
                     + "_" + userDefineField + "_" + vehicleTypeValue;
 
             imageFileName = getImageDirectory() + imageFileName + fileExt;
@@ -298,7 +298,7 @@ public class SubscribeNotificationService {
 
     public String int2Str(int intValue, int length){
         String strValue = Integer.toString(intValue);
-        if(length<strValue.length())
+        if(length>strValue.length())
             for(int i=0;i<length-strValue.length();i++)
                 strValue = "0"+strValue;
         return strValue;

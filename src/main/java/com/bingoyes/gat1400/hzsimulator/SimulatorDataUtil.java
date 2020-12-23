@@ -80,7 +80,9 @@ public class SimulatorDataUtil {
                 tollgate.setTollgateID(fields[0]);
                 tollgate.setDomainGroupCode(fields[1]);
 
-                tollgate.setName(fields[2]);
+                String tollgateName = fields[2];
+                tollgateName = tollgateName.replaceAll("_","--");
+                tollgate.setName(tollgateName);
                 resultMap.put(tollgate.getTollgateID(),tollgate);
 
             }
@@ -356,5 +358,10 @@ public class SimulatorDataUtil {
         idArray =tollgateMap.keySet().toArray(idArray);
         String tollgateIds = String.join(",",idArray);
         return tollgateIds;
+    }
+
+    public Set getAllHuazunTollgageIdSet() {
+
+        return tollgateMap.keySet();
     }
 }
