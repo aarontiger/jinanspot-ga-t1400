@@ -22,20 +22,20 @@ public class ClearHistoryDataScheduler {
     @Autowired
     SubscribeNotificationService subscribeNotificationService;
 
-    //每天0点执行一次
-    //@Scheduled(cron = "0 0 0 * * ?")
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(cron = "0 0 0 * * ?") //每天0点执行一次
+    //@Scheduled(fixedRate = 60000)   //todo testcode
+    //@Scheduled(cron = "0 38 15 * * ?") //todo testcode 每天13:38执行
     public void schedule(){
         try {
-            subscribeNotificationService.clearHistoryData(1);
-            logger.info("send notification success");
+            subscribeNotificationService.clearHistoryData(30);
+            logger.info("clear history data success");
 
         } catch (ServiceException e) {
-            logger.error("send notification  error");
+            logger.error("clear history data  error");
             e.printStackTrace();
         }catch (Exception e)
         {
-            logger.error("send notification  error");
+            logger.error("clear history data  error");
             logger.error(e.getMessage());
             e.printStackTrace();
         }
