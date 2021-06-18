@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 /**
  * GAT1400服务启动入口
  **/
-//@SpringBootApplication
+@SpringBootApplication
 @EnableScheduling
 public class Gat1400ServiceApp {
     public static void main(String[] args) {

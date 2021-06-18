@@ -177,6 +177,7 @@ public class HzApiCallingService {
 
         } catch (Exception e) {
             System.out.println("订阅失败："+e);
+            e.printStackTrace();
             throw new SecurityException("订阅失败");
         }
     }
@@ -208,6 +209,7 @@ public class HzApiCallingService {
         HttpEntity<String> httpEntity = new HttpEntity<>(requestJson, headers);
 
         //ResponseEntity<Object> responseEntity = restTemplateDigest.exchange(url, HttpMethod.POST, httpEntity,responseClass);
+//        ResponseEntity<String> responseEntity = restTemplateDigest.exchange(url, HttpMethod.POST, httpEntity,String.class);
         ResponseEntity<String> responseEntity = restTemplateDigest.exchange(url, HttpMethod.POST, httpEntity,String.class);
 
         if (org.apache.http.HttpStatus.SC_OK == responseEntity.getStatusCode().value()) {
@@ -229,6 +231,7 @@ public class HzApiCallingService {
 
         }else {
             log.error("restTemplate called error");
+            log.error("http status:"+responseEntity.getStatusCode().value());
             throw new ServiceException("restTemplate called error");
         }
     }

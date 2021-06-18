@@ -4,6 +4,8 @@ notification:
   scheduler: true
 keepalive:
   runner: false
+imageGetType:
+  base64: false
 spring:
   data:
     mongodb:

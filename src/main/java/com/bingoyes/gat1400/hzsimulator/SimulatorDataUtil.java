@@ -1,6 +1,7 @@
 package com.bingoyes.gat1400.hzsimulator;
 
 import com.bingoyes.gat1400.apicaller.bean.MotorVehicleObjectWrapper;
+import com.bingoyes.gat1400.apicaller.bean.SubImageInfo;
 import com.bingoyes.gat1400.serverpoint.dao.SubscribeNotificationDao;
 import com.bingoyes.gat1400.serverpoint.entiy.DeviceObjectWrapper;
 import com.bingoyes.gat1400.serverpoint.entiy.SubscribeNotificationRequestObject;
@@ -174,7 +175,20 @@ public class SimulatorDataUtil {
                 vehicle.setPassTime(sdf2.format(sdf.parse(fields[14])));
                 vehicle.setVehicleClass(fields[15]);
                 vehicle.setStorageUrl1(fields[16]);
+
+
+                MotorVehicleObjectWrapper.SubImageList subImageList = new MotorVehicleObjectWrapper.SubImageList();
+
+                List<SubImageInfo> subImageListObject = new ArrayList<SubImageInfo>();
+                SubImageInfo subImageInfo = new SubImageInfo();
+                subImageInfo.setType("14");
+                subImageInfo.setData("iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAE7AAABOwBim79cgAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAADtSURBVDiNxZK9SgNBFIXP3J3ZRdH8FIkPoVZG0xghTWCtrdLnIWwMAd/BwmewtVVImrBgo9j4AikSDFlhydydGV9gA7MhkK+995z7FRfYNyKO46ipqkOC7UAg8Eo5mBwYzzkdyRN1/DI4POhdSKXI86oF8MH66lngjOpEp5clwgBAAFoqDGuCzimA8NMuIIAINh5+1eu/JGf2sSlkCqx/utfZveHFd866dIEvctOgDUSNt0nUl6qyVcFtGB35GJCBMz6LRRg4Q0vrvhJmbUsELYCEWf86+ylnvLp7Eu5BZbgp98r0Puf0cSv1nfIPT8ZLa+QutMQAAAAASUVORK5CYII=");
+                subImageListObject.add(subImageInfo);
+                subImageList.setSubImageInfoObject(subImageListObject);
+                vehicle.setSubImageList(subImageList);
+
                 dataList.add(vehicle);
+
                 logger.debug("generated vehicle ,plateNo:"+vehicle.getPlateNo());
             }
         }catch (Exception e) {

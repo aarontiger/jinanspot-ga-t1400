@@ -3,7 +3,9 @@ server:
 notification:
   scheduler: false
 keepalive:
-  runner: true
+  runner: false
+imageGetType:
+  base64: true
 spring:
   data:
     mongodb:
@@ -44,6 +46,6 @@ oss:
 logging:
   config: classpath:logback_bingosrv.xml
   level:
-    root: info
+    root: error
     #org.apache.kafka: debug
     #org.springframework.web: trace

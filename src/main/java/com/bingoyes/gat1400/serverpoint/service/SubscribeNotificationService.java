@@ -2,6 +2,7 @@ package com.bingoyes.gat1400.serverpoint.service;
 
 import cn.hutool.json.JSONUtil;
 import com.bingoyes.gat1400.apicaller.bean.MotorVehicleObjectWrapper;
+import com.bingoyes.gat1400.apicaller.bean.SubImageInfo;
 import com.bingoyes.gat1400.common.exception.ServiceException;
 import com.bingoyes.gat1400.serverpoint.dao.SubscribeNotificationDao;
 import com.bingoyes.gat1400.serverpoint.entiy.DeviceObjectWrapper;
@@ -15,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -32,6 +35,9 @@ public class SubscribeNotificationService {
 
     @Value("${imageBaseDir}")
     private String imageBaseDir;
+
+    @Value("${imageGetType.base64}")
+    private boolean byBase64;
 
     @Autowired
     private SubscribeNotificationDao notificationDao;
@@ -92,9 +98,15 @@ public class SubscribeNotificationService {
         for(MotorVehicleObjectWrapper.MotorVehicle motorVehicle:vehicleListList){
 
             //保存机动车图片
-            this.saveVehicleImage(motorVehicle); //tod 吉安
-            logger.info("save vehicle on  disk success");
-            logger.info("platNo："+motorVehicle.getPlateNo());
+            if(byBase64) {
+                this.saveVehicleImageByBase64(motorVehicle); //tod 吉安
+                logger.info("save vehicle by base64 on  disk success");
+                logger.info("platNo by base64：" + motorVehicle.getPlateNo());
+            }else {
+                this.saveVehicleImage(motorVehicle); //tod 吉安
+                logger.info("save vehicle on  disk success");
+                logger.info("platNo：" + motorVehicle.getPlateNo());
+            }
         }
         logger.info("end to process vehicles");
     }
@@ -135,11 +147,22 @@ public class SubscribeNotificationService {
         saveVehicleImageOnDisk(imageFullName,imageSourceUrl); //todo 吉安
     }
 
+    private void saveVehicleImageByBase64(MotorVehicleObjectWrapper.MotorVehicle motorVehicle){
+        if(motorVehicle.getSubImageList()==null || motorVehicle.getSubImageList().getSubImageInfoObject()==null || motorVehicle.getSubImageList().getSubImageInfoObject().isEmpty()){
+            logger.error("subImage图片数据为空,图片保存失败");
+            return;
+        }
+        //checkImageUrl(motorVehicle.getStorageUrl1());
+        String imageFullName = genImageFileName(motorVehicle);
+        //String imageSourceUrl = motorVehicle.getStorageUrl1();
+        saveVehicleImageOnDiskByBase64(imageFullName,motorVehicle.getSubImageList()); //todo 吉安
+    }
+
     private void saveVehicleImageOnDisk(String fileName, String remoteUrl)
     {
         logger.info("begin copy remote image file");
-        logger.info("fileName:"+fileName);
-        logger.info("remoteUrl:"+remoteUrl);
+        logger.debug("fileName:"+fileName);
+        logger.debug("remoteUrl:"+remoteUrl);
 
         File file =new File(fileName);
         if(!file.exists()) {
@@ -180,6 +203,35 @@ public class SubscribeNotificationService {
                 logger.error("error when close stream", ex);
             }
         }
+    }
+
+    private void saveVehicleImageOnDiskByBase64(String fileName, MotorVehicleObjectWrapper.SubImageList subImageList) {
+        logger.info("begin copy base64 image file");
+        logger.debug("fileName:" + fileName);
+
+        File file = new File(fileName);
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new ServiceException("创建图片文件失败");
+            }
+        }
+
+        List<SubImageInfo> imageList = subImageList.getSubImageInfoObject();
+        for (SubImageInfo subImageInfo : imageList) {
+            if ("14".equals(subImageInfo.getType())) {
+                if (subImageInfo.getData() == null || "".equals(subImageInfo.getData())) {
+                    logger.info("subImageInfo data empty");
+                } else {
+                    convertBase64ToFile(fileName, subImageInfo.getData());
+                    logger.info("save base64 file success:" + fileName);
+                    break;
+                }
+            }
+        }
+        logger.info("end copy base64 image file");
     }
 
     private String genImageFileName(MotorVehicleObjectWrapper.MotorVehicle motorVehicle)
@@ -311,6 +363,70 @@ public class SubscribeNotificationService {
         notificationDao.clearSubscribeData(days);
 
         logger.info("clear history data end");
+    }
+
+    public  File convertBase64ToFile(String fullFileName,String fileBase64String) {
+
+        BufferedOutputStream bos = null;
+        FileOutputStream fos = null;
+        File file = null;
+        try {
+            File dir = new File(fullFileName);
+            if (!dir.exists() && dir.isDirectory()) {//判断文件目录是否存在
+                dir.mkdirs();
+            }
+
+            BASE64Decoder decoder = new BASE64Decoder();
+            byte[] bfile = decoder.decodeBuffer(fileBase64String);
+
+            file = new File(fullFileName);
+            fos = new FileOutputStream(file);
+            bos = new BufferedOutputStream(fos);
+            bos.write(bfile);
+            return file;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (bos != null) {
+                try {
+                    bos.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public  String convertFileToBase64(String imgPath) {
+        byte[] data = null;
+        // 读取图片字节数组
+        try {
+            InputStream in = new FileInputStream(imgPath);
+            System.out.println("文件大小（字节）="+in.available());
+            data = new byte[in.available()];
+            in.read(data);
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // 对字节数组进行Base64编码，得到Base64编码的字符串
+        BASE64Encoder encoder = new BASE64Encoder();
+        String base64Str = encoder.encode(data);
+        return base64Str;
+    }
+
+    public static void  main(String[] args){
+/*        SubscribeNotificationService service = new SubscribeNotificationService();
+        String base64Str = service.convertFileToBase64("e:\\image123.jpg");
+        service.convertBase64ToFile("e:\\789.jpg",base64Str);*/
     }
 
 }

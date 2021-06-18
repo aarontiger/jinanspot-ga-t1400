@@ -48,7 +48,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers("/api2/*").permitAll()
                 .antMatchers("/hello3").permitAll()
-                .antMatchers("/VIID/SubscribeNotifications").permitAll()
+                .antMatchers("/VIID/SubscribeNotifications").permitAll
+                ()
+                //.antMatchers("/VIID/Subscribes").permitAll()
                 .anyRequest().authenticated()
 
                 //.anyRequest().authenticated()

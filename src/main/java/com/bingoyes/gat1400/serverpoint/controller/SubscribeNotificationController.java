@@ -37,7 +37,7 @@ public class SubscribeNotificationController {
     public @ResponseBody String notification(@RequestBody Map<String,Object> requestMap, HttpServletRequest request) {
         log.info("SubscribeNotification received");
         String requestJson = JSONUtil.toJsonStr(requestMap);
-        log.info("requestJson:"+requestJson);
+        //log.info("requestJson:"+requestJson);
 
         String requestUrl = request.getRemoteAddr();
         String deviceId = request.getHeader("User-Identify");

@@ -34,7 +34,7 @@ public class HzApiCallingController {
 
     private static Logger logger = LoggerFactory.getLogger(HzApiCallingController.class);
 
-    private String serverUrl;
+    private String serverUrl="http://127.0.0.1:9120";
     @Value("${hz-hostname}")
     private String hostname;
     @Value("${hz-port}")
@@ -54,6 +54,9 @@ public class HzApiCallingController {
     @Resource
     @Qualifier("restTemplateDigest")
     private RestTemplate restTemplateDigest;
+
+    @Resource
+    private RestTemplate restTemplate;
 
     @Resource
     private HzApiCallingService hzApiCallingService;
@@ -76,7 +79,7 @@ public class HzApiCallingController {
 
         HttpEntity<String> httpEntity = new HttpEntity<>(JSONUtil.toJsonStr(registerRequestObject), headers);
         // 第一次请求
-        ResponseEntity<String> responseEntity = restTemplateDigest.exchange(url, HttpMethod.POST, httpEntity, String.class);
+        ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.POST, httpEntity, String.class);
         if (HttpStatus.SC_UNAUTHORIZED == responseEntity.getStatusCode().value()) {
             HttpHeaders responseEntityHeaders = responseEntity.getHeaders();
             String authenticate = responseEntityHeaders.get("WWW-Authenticate").get(0);
