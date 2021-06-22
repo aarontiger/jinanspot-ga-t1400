@@ -16,7 +16,7 @@
         <!--滚动策略-->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!--日志文件输出的文件名-->
-            <FileNamePattern>/var/gat1400/gat1400_bingocli.out.%d{yyyy-MM-dd}</FileNamePattern>
+            <FileNamePattern>/var/log/gat1400/gat1400_bingocli.out.%d{yyyy-MM-dd}</FileNamePattern>
             <!-- 每产生一个日志文件，该日志文件的保存期限为30天 -->
             <maxHistory>30</maxHistory>
         </rollingPolicy>

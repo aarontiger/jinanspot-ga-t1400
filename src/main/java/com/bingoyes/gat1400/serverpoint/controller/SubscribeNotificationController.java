@@ -37,12 +37,12 @@ public class SubscribeNotificationController {
     public @ResponseBody String notification(@RequestBody Map<String,Object> requestMap, HttpServletRequest request) {
         log.info("SubscribeNotification received");
         String requestJson = JSONUtil.toJsonStr(requestMap);
-        //log.info("requestJson:"+requestJson);
+        log.debug("requestJson:"+requestJson);
 
         String requestUrl = request.getRemoteAddr();
         String deviceId = request.getHeader("User-Identify");
-        log.info("requestUrl:"+requestUrl);
-        log.info("request deviceId(User-Identify):"+deviceId);
+        log.debug("requestUrl:"+requestUrl);
+        log.debug("request deviceId(User-Identify):"+deviceId);
         SubscribeNotificationRequestObject subscribeNotificationRequestObject = JSONUtil.toBean(requestJson,SubscribeNotificationRequestObject.class);
 
         ResponseStatusListObjectWrapper.ResponseStatusListObject responseStatusListObject = new ResponseStatusListObjectWrapper.ResponseStatusListObject();
@@ -64,12 +64,12 @@ public class SubscribeNotificationController {
         }catch (ServiceException e) {
             responseStatus.setStatusCode(-1);
             responseStatus.setStatusString(e.getMessage());
-            log.info("subscribe notification failure");
+            log.error("subscribe notification failure");
             processSucceed = false;
         } catch (Exception e) {
             responseStatus.setStatusCode(-1);
             responseStatus.setStatusString("发送订阅通知失败");
-            log.info("subscribe notification failure");
+            log.error("subscribe notification failure");
             processSucceed = false;
         }
 

@@ -28,7 +28,7 @@ public class SystemController {
     public String register(@RequestBody Map<String,Object> requestMap, HttpServletResponse response){
         log.info("Register received");
         String requestJson = JSONUtil.toJsonStr(requestMap);
-        log.info("requestJson:"+requestJson);
+        log.debug("requestJson:"+requestJson);
 
         RegisterRequestObject registerRequestObject = JSONUtil.toBean(requestJson,RegisterRequestObject.class);
 
@@ -61,7 +61,7 @@ public class SystemController {
         log.info("Keepalive received");
 
         String requestJson = JSONUtil.toJsonStr(requestMap);
-        log.info("requestJson:"+requestJson);
+        log.debug("requestJson:"+requestJson);
 
         KeepaliveRequestObject keepaliveRequestObject = JSONUtil.toBean(requestJson,KeepaliveRequestObject.class);
 
@@ -93,7 +93,7 @@ public class SystemController {
     {
         log.info("UnRegister received");
         String requestJson = JSONUtil.toJsonStr(requestMap);
-        log.info("requestJson:"+requestJson);
+        log.debug("requestJson:"+requestJson);
 
         UnRegisterRequestObject unRegisterRequestObject = JSONUtil.toBean(requestJson,UnRegisterRequestObject.class);
 
@@ -124,7 +124,7 @@ public class SystemController {
     {
         log.info("Subscribes received");
         String requestJson = JSONUtil.toJsonStr(requestMap);
-        log.info("requestJson:"+requestJson);
+        log.debug("requestJson:"+requestJson);
 
         SubscribeListRequestObject subscribeListRequestObject = JSONUtil.toBean(requestJson,SubscribeListRequestObject.class);
 

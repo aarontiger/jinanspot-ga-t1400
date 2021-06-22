@@ -53,10 +53,6 @@ public class SubscribeNotificationService {
 
         logger.info("begin to process notifications");
 
-
-        //todo 吉安
-        //simulatorDataUtil.importDeviceIntoMongo();
-
         //通知json保存到mongo
         String jsonStr = JSONUtil.toJsonStr(notificaitonListObject);
 
@@ -152,15 +148,15 @@ public class SubscribeNotificationService {
             logger.error("subImage图片数据为空,图片保存失败");
             return;
         }
-        //checkImageUrl(motorVehicle.getStorageUrl1());
+
         String imageFullName = genImageFileName(motorVehicle);
-        //String imageSourceUrl = motorVehicle.getStorageUrl1();
+
         saveVehicleImageOnDiskByBase64(imageFullName,motorVehicle.getSubImageList()); //todo 吉安
     }
 
     private void saveVehicleImageOnDisk(String fileName, String remoteUrl)
     {
-        logger.info("begin copy remote image file");
+        logger.debug("begin copy remote image file");
         logger.debug("fileName:"+fileName);
         logger.debug("remoteUrl:"+remoteUrl);
 
@@ -191,7 +187,7 @@ public class SubscribeNotificationService {
 
                 outputStream.write(buffer, 0, bytesRead);
             }
-            logger.info("copy remote image file success");
+            logger.debug("copy remote image file success");
         } catch (Exception e) {
             logger.error("copy remote image file failure");
             throw new ServiceException("copy remote image file failure");
@@ -275,10 +271,10 @@ public class SubscribeNotificationService {
 
             String vehicleTypeValue = simulatorDataUtil.getVehicleTypeValue(String.valueOf(motorVehicle.getVehicleClass()));
 
-            String userDefineField = "106.000000,24.000000#1";
+            String userDefineField = "106.000000,24.000000";
             EfsDomainGroup domainGroup = notificationDao.getEfsDomainGroup(efsDomainGroupCode);
             if(domainGroup!=null)
-                userDefineField = domainGroup.getCenter()+"#1";
+                userDefineField = domainGroup.getCenter();
 
             String imageFileName = deviceName + "_" + deviceId + "_" + ip + "_" + efsDomainGroupCode + "_" + motorVehicle.getPlateNo() + "_"
                     + plateColor + "_" + laneNo + "_" + speed + "_" + directionId + "_" + vehicleColor + "_" + point + "_" + motorVehicle.getPassTime()+"000"
@@ -286,7 +282,7 @@ public class SubscribeNotificationService {
 
             imageFileName = getImageDirectory() + imageFileName + fileExt;
 
-            logger.info("success generate image filename:" + imageFileName);
+            logger.debug("success generate image filename:" + imageFileName);
             return imageFileName;
         }catch(Exception e){
             logger.error("generate image filename error");
